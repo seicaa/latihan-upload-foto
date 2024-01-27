@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to upload file using Vue.js with PHP</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+    rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container" id="uploadApp">
+        <h3 align="center">How to upload file using Vue.js with PHP</h3>
+        <div v-if="successAlert" class="alert alert-success alert-dismissible">
+            <a href="#" class="close" aria-label="close" @click="successAlert=false">&times;</a>
+            {{ successMassage }}
+        </div>
+        <div v-if="errorAlert" class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" aria-label="close" @click="errorAlert=false">&times;</a>
+            {{ errorMassage }}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-6"><h3 class="panel-title">upload file</h3> </div>
+                    <div class="col-md-6" align="right">
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4" align="right">
+                        <label>select image</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="file" ref="file"/>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" @click="uploadImages" class="btn btn-primary">upload image</button>
+                    </div>
+                </div>
+                <br/>
+                <div v-html="uploadImage" align="center"></div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        var application = new Vue({
+            el:'#uploadApp',
+            data:{
+                file: '',
+                successAlert:false,
+                errorAlert:false,
+                uploadImage:'',
+            },
+            methods:{
+                uploadImages:function(){
+
+                    application.file = application.$refs.file.files[0];
+
+                    var formData = new FormData();
+
+                    formData.append('file', application.file);
+
+                    axios.post('upload.php', formData, {
+                        header:{
+                            'Content-Type' : 'multipart/form-data'
+                        }
+                    }).then(function(response){
+                        if(response.data.image == '')
+                        {
+                            application.errorAlert = true;
+                            application.successAlert = false;
+                            application.errorMassage = response.data.massage;
+                            application.successMassage = '';
+                            application.uploadImage = '';
+                        }
+                        else
+                        {
+                            application.errorAlert = false;
+                            application.successAlert = true;
+                            application.errorMassage = '';
+                            application.successMassage = response.data.massage;
+                            var image_html = "<img src='"+response.data.image+"' class='img-thumbnail'width='200'/>";
+                            application.uploadImage = image_html;
+                            application.$refs.file.value =  '';
+                        }
+                    });
+                }
+            },
+        });
+    </script>
+</body>
+</html>
